@@ -5,6 +5,8 @@ var bodyParser = require('body-parser');
 var sass = require('node-sass-middleware');
 var validator = require('express-validator');
 var cookieSession = require('cookie-session');
+var session = require('express-session');
+var RedisStore = require('connect-redis')(session);
 
 module.exports = function() {
 	var app = express();
@@ -14,6 +16,18 @@ module.exports = function() {
 	} else {
 		app.use(compression);
 	}
+
+	app.use(session({
+		store: new RedisStore({
+			host: 'localhost',
+			port: 6379,
+			db: 2,
+			pass: 'redis_password'
+		}),
+		secret: 'secret_key',
+		resave: false,
+		saveUninitialized: true
+	}));
 
 	app.use(cookieSession({
 		name : 'session',
